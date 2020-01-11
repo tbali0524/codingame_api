@@ -1,1 +1,1 @@
-<?php define('PW','your password goes here');?>
+<?php define("EMAIL","youremailaddress@domainname.com");define("PW","yourCGpassword");?>

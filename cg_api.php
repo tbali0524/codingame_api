@@ -4,7 +4,7 @@
 // (c) 2020 by Balint Toth
 // --------------------------------------------------------------------
 
-require_once('misc.php');
+require_once('misc.php');   // defines login credentials with EMAIL and PW constants
 define('DEBUG', FALSE);
 
 abstract class Myself
@@ -12,7 +12,7 @@ abstract class Myself
     const Pseudo = "TBali";
     const UserId = "3305510";
     const PublicHandle = "08e6e13d9f7cad047d86ec4d10c777500155033";
-    const Email = "tbali0524@gmail.com";
+    const Email = EMAIL;
     const Password = PW;
     const Avatar = "26750785092441";
     const Cover = "27032383437051";
