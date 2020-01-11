@@ -1,0 +1,1 @@
+<?php define('PW','your password goes here');?>
