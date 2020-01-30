@@ -13,6 +13,7 @@ abstract class MySelf
     const PublicHandle = "08e6e13d9f7cad047d86ec4d10c777500155033";
     const Email = EMAIL;
     const Password = PW;
+    const SchoolId = 467;
     const Avatar = "26750785092441";
     const Cover = "27032383437051";
 } // class MySelf
@@ -76,6 +77,16 @@ abstract class CodinGameApi
         if (json_last_error() != JSON_ERROR_NONE)
             die("ERROR: Response is not in valid JSON format.");
     } // function callApi
+
+    public function writeRequestJSON(string $fileName): void
+    {
+        if (is_null($this->requestJSON))
+            return;
+        $f = fopen($fileName, "wb")
+            or die("ERROR: Cannot create json file.");
+        fwrite($f, $this->requestJSON);
+        fclose($f);
+    } // function writeRequestJSON
 
     public function writeResponseJSON(string $fileName, bool $isPretty = TRUE): void
     {
@@ -198,7 +209,11 @@ abstract class CodinGameApi
 
     public function getSummary(): string
     {
-        return "";
+        if (is_null($this->keyToGetRows))
+            $count = count($this->result);
+        else
+            $count = count($this->result[$this->keyToGetRows] ?? []);
+        return "Response list has " . $count . " records.\n";
     } // function getSummary()
 
 } // class CodinGameApi
@@ -275,7 +290,7 @@ class ClashOfCode_getClashRankByCodinGamerId extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = "Clash of Code ranking of player " . $this->userId . " is " . ($this->result["rank"] ?? "?"). " from total players of " . ($this->result["totalPlayers"] ?? "?") . "\n";
+        $s = "Clash of Code ranking of player '" . $this->userId . "' is " . ($this->result["rank"] ?? "?"). " from total players of " . ($this->result["totalPlayers"] ?? "?") . "\n";
         return $s;
     } // function getSummary
 
@@ -299,7 +314,7 @@ class CodinGamer_findCodingamePointsStatsByHandle extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = "Player " . $this->publicHandle . " has "
+        $s = "Player '" . $this->publicHandle . "' has "
             . ($this->result["codingamePointsRankingDto"]["codingamePointsXp"] ?? "?") . " XP, " 
             . ($this->result["codingamePointsRankingDto"]["codingamePointsTotal"] ?? "?") . " CP, rank = "
             . ($this->result["codingamePointsRankingDto"]["codingamePointsRank"] ?? "?") . ". from total of "
@@ -344,6 +359,38 @@ class CodinGamer_findCPByCodinGamerAndPredefinedTestId extends CodinGameApi
 } // class CodinGamer_findCPByCodinGamerAndPredefinedTestId
 
 // --------------------------------------------------------------------
+class CodinGamer_findFollowerIds extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findFollowerIds";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+} // class CodinGamer_findFollowerIds
+
+// --------------------------------------------------------------------
+class CodinGamer_findFollowingIds extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findFollowingIds";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+} // class CodinGamer_findFollowingIds
+
+// --------------------------------------------------------------------
 class CodinGamer_findRankingPoints extends CodinGameApi
 {
     public $userId;
@@ -377,7 +424,7 @@ class CodinGamer_findTotalAchievementProgress extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = "Player " . $this->publicHandle . " has " . ($this->result["achievementCount"] ?? "?") . " achievements from total of " . ($this->result["achievementTotal"] ?? "?") . "\n";
+        $s = "Player '" . $this->publicHandle . "' has " . ($this->result["achievementCount"] ?? "?") . " achievements from total of " . ($this->result["achievementTotal"] ?? "?") . "\n";
         return $s;
     } // function getSummary
 
@@ -457,7 +504,7 @@ class Leaderboards_getCodinGamerChallengeRanking extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = ($this->result["pseudo"] ?? ""). " has a ranking of " . ($this->result["rank"] ?? "") . " in challenge "
+        $s = "Player '" . ($this->result["pseudo"] ?? ""). "' has a ranking of " . ($this->result["rank"] ?? "") . " in challenge "
             . $this->challengePublicId;
         $divisionCount = ($this->result["league"]["divisionCount"] ?? 0);
         $leagueName = $this->getLeagueName($this->result["league"] ?? []);
@@ -487,7 +534,7 @@ class Leaderboards_getCodinGamerClashRanking extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = "Player " . $this->userId . " did " . ($this->result["clashesCount"] ?? "?") . " Clash of Codes, and has a ranking of "
+        $s = "Player '" . $this->userId . "' did " . ($this->result["clashesCount"] ?? "?") . " Clash of Codes, and has a ranking of "
             . ($this->result["rank"] ?? "?") . " from total players of " . ($this->result["total"] ?? "?") . "\n";
         return $s;
     } // function getSummary
@@ -512,7 +559,7 @@ class Leaderboards_getCodinGamerGlobalRankingByHandle extends CodinGameApi
     {
         if (is_null($this->result))
             return "";
-        $s = "Player " . $this->publicHandle . " (pseudo: "
+        $s = "Player '" . $this->publicHandle . "' (pseudo: "
             . ($this->result["pseudo"] ?? "?") . ") has "
             . ($this->result["score"] ?? "?") . " CP, rank = "
             . ($this->result["rank"] ?? "?") . ". from total of "
@@ -571,17 +618,20 @@ class Leaderboards_getGlobalLeaderboard extends CodinGameApi
 {
     public $publicHandle;
     public $pageNum;
+    public $leaderboardType;
 
     const ServiceURL = "https://www.codingame.com/services/Leaderboards/getGlobalLeaderboard";
+    const leaderBoardTypes = ["GENERAL", "CONTESTS", "BOT_PROGRAMMING", "OPTIM", "CODEGOLF"];
 
-    public function __construct(int $_pageNum = 1, string $_publicHandle = MySelf::PublicHandle)
+    public function __construct(int $_pageNum = 1, string $_publicHandle = MySelf::PublicHandle, string $_leaderboardType = "GENERAL")
     {
         $this->serviceURL = self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->pageNum = $_pageNum;
+        $this->leaderboardType = $_leaderboardType;
         $this->keyToGetRows = "users";
         $this->columnNames = ["pseudo", "rank", "score",  "xp"];
-        $this->requestJSON = '[' . $this->pageNum . ',"GENERAL",{keyword: "", active: false, column: "", filter: ""},"' . $this->publicHandle . '",true,"global"]';
+        $this->requestJSON = '[' . $this->pageNum . ',"' . $this->leaderboardType . '",{keyword: "", active: false, column: "", filter: ""},"' . $this->publicHandle . '",true,"global"]';
     } // function __construct
 
 } // class Leaderboards_getGlobalLeaderboard
@@ -624,13 +674,77 @@ class Puzzle_findProgressByIds extends CodinGameApi
 } // class Puzzle_findProgressByIds
 
 // --------------------------------------------------------------------
+class School_findById extends CodinGameApi
+{
+    public $schoolId;
+
+    const ServiceURL = "https://www.codingame.com/services/School/findById";
+
+    public function __construct(string $_schoolId = MySelf::SchoolId)
+    {
+        $this->serviceURL = self::ServiceURL;
+        $this->schoolId = $_schoolId;
+        $this->requestJSON = '[' . $this->schoolId . ']';
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "School '" . $this->schoolId . "' is "
+            . ($this->result["name"] ?? "?") . ", located in "
+            . ($this->result["city"] ?? "?") . ", "
+            . ($this->result["countryId"] ?? "?") . "\n";
+        return $s;
+    } // function getSummary
+
+} // class School_findById
+
+// --------------------------------------------------------------------
+class CG_Avatar extends CodinGameApi
+{
+    public $id;
+    public $responsePNG = NULL;
+
+    const ServiceURL = "https://static.codingame.com/servlet/fileservlet";
+    const ContentType = "image/png";
+
+    public function __construct(string $_id = MySelf::Avatar)
+    {
+        $this->serviceURL = self::ServiceURL;
+        $this->id = $_id;
+    } // function __construct
+
+    public function getAvatar(string $fileName): void
+    {
+        $query = '?id=' . $this->id . '&format=profile_avatar';
+        if (is_null($this->serviceURL))
+            die("ERROR: missing service URL");
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->serviceURL . $query);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        $this->responsePNG = curl_exec($curl);
+        if (($this->responsePNG === FALSE) or (curl_errno($curl) != 0))
+            die("ERROR: Connection Failure: " . curl_error($curl));
+        curl_close($curl);
+        $f = fopen($fileName, "wb")
+            or die("ERROR: Cannot create json file.");
+        fwrite($f, $this->responsePNG);
+        fclose($f);
+    } // function getAvatar
+
+} // class CG_Avatar
+
+// --------------------------------------------------------------------
 class CG
 {
     const InputFileNameJSON = "input.json";
+    const FileNamePrefixRequestJSON = "request_";
     const FileNamePrefixJSON = "response_";
     const FileNamePostfixJSON = ".json";
     const FileNamePrefixCSV = "result_";
     const FileNamePostfixCSV = ".csv";
+    const AvatarFileName = "avatar.png";
 
     const PuzzlePublicIds = array(
         // multi 
@@ -776,7 +890,7 @@ class CG
             142, 147, 150, 157, 158, 159, 161, 169, 170, 172, 173, 174, 187, 190, 193, 198, 199, 202, 207, 220, 223, 227, 228, 230, 233, 234, 239, 243, 244, 245, 246, 
             299, 322, 326, 331, 332, 336, 337, 339, 344, 349, 350, 352, 354, 361, 363, 364, 366, 367, 370, 372, 374, 375, 377, 384, 386, 387, 388, 394, 397, 400, 401, 
             402, 406, 413, 415, 421, 422, 423, 424, 425, 426, 427, 434, 435, 436, 438, 440, 444, 445, 446, 448, 452, 456, 457, 462, 466, 470, 472, 475, 478, 479, 480, 
-            482, 484, 485, 487, 488, 490, 492, 499, 502, 503, 510, 511, 518, 522, 526, 529, 531, 532, 533, 537, 538, 539, 543, 544, 545, 548, 551, 561],
+            482, 484, 485, 487, 488, 490, 492, 499, 502, 503, 510, 511, 518, 522, 526, 529, 531, 532, 533, 537, 538, 539, 543, 544, 545, 548, 551, 561, 565, 566],
         "hard"      => [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 44, 48, 55, 113, 96, 97, 89, 109, 85, 100, 84, 119, 122, 125, 127, 130, 134, 135, 136, 138, 
             141, 143, 145, 146, 153, 162, 167, 176, 179, 180, 181, 183, 184, 185, 192, 195, 196, 197, 200, 217, 219, 222, 224, 225, 231, 232, 236, 240, 241, 248, 249, 
             250, 251, 252, 254, 255, 293, 294, 307, 308, 312, 313, 314, 315, 318, 320, 325, 327, 330, 340, 342, 346, 347, 356, 365, 369, 371, 378, 398, 399, 404, 405, 
@@ -784,7 +898,7 @@ class CG
         "expert"    => [36, 37, 38, 39, 42, 46, 49, 79, 126, 129, 137, 139, 140, 149, 151, 152, 160, 175, 177, 178, 186, 189, 191, 194, 201, 211, 226, 237, 242, 253, 
             309, 310, 311, 321, 323, 328, 348, 357, 368, 381, 385, 411, 414, 527, 555, 557],
         "multi"     => [63, 64, 68, 66, 65, 67, 69, 148, 156, 168, 221, 247, 298, 324, 329, 359, 376, 380, 382, 383, 410, 420, 450, 460, 468, 471, 473, 474, 481, 483, 
-            491, 500, 530, 549, 550, 553, 560], 
+            491, 500, 530, 549, 550, 553, 560, 564], 
         "optim" => [56, 60, 70, 71, 439, 461, 524, 563],
         "codegolf"  => [57, 58, 73, 464],
     );
@@ -799,6 +913,9 @@ class CG
         echo " TEST #" . $idxPadded . " : " . $apiName . "\n";
         echo str_repeat("=", strlen($apiName) + 13) . "\n";
         $g = new $apiName;
+        $fileName = self::FileNamePrefixRequestJSON . $apiName . self::FileNamePostfixJSON;
+        echo "--- writing API request body to file: " . $fileName . "\n";
+        $g->writeRequestJSON($fileName);
         if ($readFromFile)
         {
             echo "--- emulating API response by reading from file: " . self::InputFileNameJSON . "\n";
@@ -922,8 +1039,21 @@ class CG
         echo "--- END ---\n\n";
     } // function generateAllChallengeLeaderboardCSV
 
+    public function testAvatar(): void
+    {
+        echo str_repeat("=", 60) . "\n";
+        echo " TESTING getting avatar PNG file:\n";
+        echo str_repeat("=", 32) . "\n";
+        $g = new CG_Avatar;
+        echo "--- calling GET: " . $g->serviceURL . "\n";
+        $g->getAvatar(self::AvatarFileName);
+        echo "--- writing PNG response to file: " . self::AvatarFileName . "\n";
+        echo "--- END ---\n\n";
+    } // function testAvatar
+
     public function testAll(): void
     {
+        echo str_repeat("=", 60) . "\n";
         echo "REGRESSION TESTING\n\n";
         $this->testEmulated();
         foreach (self::APInames as $idxAPI => $name)
@@ -931,10 +1061,11 @@ class CG
         $this->generateAllPuzzlesCSV();
         $this->generateAllPuzzleLeaderboardCSV();
         $this->generateAllChallengeLeaderboardCSV();
+        $this->testAvatar();
         echo "--- ALL TESTS ENDED ---\n";
     } // function testAll
 
-    const DefaultIdxAPI = 14;
+    const DefaultIdxAPI = 16;
     const APInames = array(
         /*  0 */ "Achievement_findByCodingamerId",
         /*  1 */ "Challenge_findAllChallenges", 
@@ -943,19 +1074,22 @@ class CG
         /*  4 */ "CodinGamer_findCodingamePointsStatsByHandle", 
         /*  5 */ "CodinGamer_findCodinGamerGolfPuzzlePoints", 
         /*  6 */ "CodinGamer_findCPByCodinGamerAndPredefinedTestId", 
-        /*  7 */ "CodinGamer_findRankingPoints", 
-        /*  8 */ "CodinGamer_findTotalAchievementProgress", 
-        /*  9 */ "CodinGamer_getMyConsoleInformation", 
-        /* 10 */ "Codingamer_loginSiteV2", 
-        /* 11 */ "Leaderboards_findAllPuzzleLeaderboards", 
-        /* 12 */ "Leaderboards_getCodinGamerChallengeRanking", 
-        /* 13 */ "Leaderboards_getCodinGamerClashRanking", 
-        /* 14 */ "Leaderboards_getCodinGamerGlobalRankingByHandle", 
-        /* 15 */ "Leaderboards_getFilteredChallengeLeaderboard", 
-        /* 16 */ "Leaderboards_getFilteredPuzzleLeaderboard", 
-        /* 17 */ "Leaderboards_getGlobalLeaderboard", 
-        /* 18 */ "Puzzle_findAllMinimalProgress",
-        /* 19 */ "Puzzle_findProgressByIds", 
+        /*  7 */ "CodinGamer_findFollowerIds", 
+        /*  8 */ "CodinGamer_findFollowingIds", 
+        /*  9 */ "CodinGamer_findRankingPoints", 
+        /* 10 */ "CodinGamer_findTotalAchievementProgress", 
+        /* 11 */ "CodinGamer_getMyConsoleInformation", 
+        /* 12 */ "Codingamer_loginSiteV2", 
+        /* 13 */ "Leaderboards_findAllPuzzleLeaderboards", 
+        /* 14 */ "Leaderboards_getCodinGamerChallengeRanking", 
+        /* 15 */ "Leaderboards_getCodinGamerClashRanking", 
+        /* 16 */ "Leaderboards_getCodinGamerGlobalRankingByHandle", 
+        /* 17 */ "Leaderboards_getFilteredChallengeLeaderboard", 
+        /* 18 */ "Leaderboards_getFilteredPuzzleLeaderboard", 
+        /* 19 */ "Leaderboards_getGlobalLeaderboard", 
+        /* 20 */ "Puzzle_findAllMinimalProgress",
+        /* 21 */ "Puzzle_findProgressByIds", 
+        /* 22 */ "School_findById", 
     );
 
 } // class CG
@@ -965,9 +1099,10 @@ class CG
 $g = new CG;
 echo "CodinGame data downloader & API tool, (c) 2020 by Balint Toth (TBali)\n";
 // $g->testAll();
-$g->testAPI(14);
+$g->testAPI();
 // $g->testEmulated();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();
 // $g->generateAllChallengeLeaderboardCSV();
+// $g->testAvatar();
 ?>
