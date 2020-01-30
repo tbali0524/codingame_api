@@ -1,12 +1,12 @@
 <?php
 // --------------------------------------------------------------------
-// Codingame data downloader & API tool
+// CodinGame data downloader & API tool
 // (c) 2020 by Balint Toth
 // --------------------------------------------------------------------
 
 require_once('misc.php');   // defines login credentials with EMAIL and PW constants
 
-abstract class Myself
+abstract class MySelf
 {
     const Pseudo = "TBali";
     const UserId = "3305510";
@@ -15,7 +15,7 @@ abstract class Myself
     const Password = PW;
     const Avatar = "26750785092441";
     const Cover = "27032383437051";
-} // class Myself
+} // class MySelf
 
 // --------------------------------------------------------------------
 abstract class CodinGameApi
@@ -33,7 +33,7 @@ abstract class CodinGameApi
     public $fieldFixedKey = NULL;               // string
     public $fieldFixedValue = NULL;             // string
 
-    const LeagueName = ["Legend", "Gold", "Silver", "Bronze", "Wood", "Wood", "Wood", "Wood", "Wood"];
+    const LeagueName = ["Legend", "Gold", "Silver", "Bronze", "Wood", "Wood", "Wood", "Wood", "Wood", "Wood"];
     const LeagueNameNone = "None";
     const ContentType = "application/json;charset=UTF-8";
     const CookieJarFileName ="cookie.txt";
@@ -505,8 +505,20 @@ class Leaderboards_getCodinGamerGlobalRankingByHandle extends CodinGameApi
     {
         $this->serviceURL = self::ServiceURL;
         $this->publicHandle = $_publicHandle;
-        $this->requestJSON = '["' . $this->publicHandle . '","global",{"active":true,"column":"","filter":""}]';
+        $this->requestJSON = '["' . $this->publicHandle . '","GENERAL","global",null]';
     } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Player " . $this->publicHandle . " (pseudo: "
+            . ($this->result["pseudo"] ?? "?") . ") has "
+            . ($this->result["score"] ?? "?") . " CP, rank = "
+            . ($this->result["rank"] ?? "?") . ". from total of "
+            . ($this->result["total"] ?? "?") . " players.\n";
+        return $s;
+    } // function getSummary
 
 } // class Leaderboards_getCodinGamerGlobalRankingByHandle
 
@@ -524,7 +536,7 @@ class Leaderboards_getFilteredChallengeLeaderboard extends Leaderboards_getFilte
         $this->publicHandle = $_publicHandle;
         $this->challengePublicId = $_challengePublicId;
         $this->keyToGetRows = "users";
-        $this->columnNames = ["rank", "leagueName", "programmingLanguage"];
+        $this->columnNames = ["rank", "leagueName", "programmingLanguage", "pseudo"];
         $this->fieldFixedKey = "challengePublicId"; 
         $this->fieldFixedValue = $this->challengePublicId; 
         $this->requestJSON = '["' . $this->challengePublicId . '","' . $this->publicHandle . '","global",{"active":false,"column":"","filter":""}]';
@@ -546,7 +558,7 @@ class Leaderboards_getFilteredPuzzleLeaderboard extends CodinGameApi
         $this->publicHandle = $_publicHandle;
         $this->puzzlePublicId = $_puzzlePublicId;
         $this->keyToGetRows = "users";
-        $this->columnNames = ["rank", "leagueName", "programmingLanguage"];
+        $this->columnNames = ["rank", "leagueName", "programmingLanguage", "pseudo"];
         $this->fieldFixedKey = "puzzlePublicId"; 
         $this->fieldFixedValue = $this->puzzlePublicId; 
         $this->requestJSON = '["' . $this->puzzlePublicId . '","' . $this->publicHandle . '","global",{"active":false,"column":"","filter":""}]';
@@ -569,7 +581,7 @@ class Leaderboards_getGlobalLeaderboard extends CodinGameApi
         $this->pageNum = $_pageNum;
         $this->keyToGetRows = "users";
         $this->columnNames = ["pseudo", "rank", "score",  "xp"];
-        $this->requestJSON = '[' . $this->pageNum . ',{"keyword":"","active":false,"column":"","filter":""},"' . $this->publicHandle . '",true,"global"]';
+        $this->requestJSON = '[' . $this->pageNum . ',"GENERAL",{keyword: "", active: false, column: "", filter: ""},"' . $this->publicHandle . '",true,"global"]';
     } // function __construct
 
 } // class Leaderboards_getGlobalLeaderboard
@@ -646,7 +658,6 @@ class CG
         "legends-of-code-magic", 
         "xmas-rush", 
         "code-a-la-mode", 
-        "a-code-of-ice-and-fire", 
 
         // multi-community
         "vindinium", 
@@ -656,11 +667,13 @@ class CG
         "cultist-wars", 
         "bit-runner-2048", 
         "bandas", 
+        "a-code-of-ice-and-fire", 
         "oware-abapa", 
         "breakthrough",
         "paper-soccer",
         "onitama", 
         "tower-dereference",
+        "twixt-pp",
 
         // optim
         "mars-lander-fuel",
@@ -809,7 +822,7 @@ class CG
             fclose($f);
         }
         echo $g->getSummary();
-        echo "--- END OF TEST #" . $idxPadded . "---\n\n";
+        echo "--- END OF TEST #" . $idxPadded . " ---\n\n";
     } // function testAPI
 
     public function testEmulated(): void
@@ -912,9 +925,9 @@ class CG
     public function testAll(): void
     {
         echo "REGRESSION TESTING\n\n";
+        $this->testEmulated();
         foreach (self::APInames as $idxAPI => $name)
             $this->testAPI($idxAPI);
-        $this->testEmulated();
         $this->generateAllPuzzlesCSV();
         $this->generateAllPuzzleLeaderboardCSV();
         $this->generateAllChallengeLeaderboardCSV();
@@ -950,8 +963,9 @@ class CG
 // --------------------------------------------------------------------
 // main program
 $g = new CG;
+echo "CodinGame data downloader & API tool, (c) 2020 by Balint Toth (TBali)\n";
 // $g->testAll();
-$g->testAPI();
+$g->testAPI(14);
 // $g->testEmulated();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();
