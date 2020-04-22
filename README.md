@@ -27,7 +27,9 @@ APIs currently supported:
 * School_findById
 * + getting the user avatar PNG file by file id
 
-Usage: 
+Usage:
 > php cg_api.php
+or
+> test.bat
 
-Edit which test cases to run near the end of the source file.
+Edit which test cases to run near the end of the source file. All tests run in 2-3 minutes.
