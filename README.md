@@ -9,7 +9,7 @@ APIs currently supported:
 * CodinGamer_findCodingamePointsStatsByHandle
 * CodinGamer_findCodinGamerGolfPuzzlePoints
 * CodinGamer_findCPByCodinGamerAndPredefinedTestId
-* CodinGamer_findFollowerIdx
+* CodinGamer_findFollowerIds
 * CodinGamer_findFollowingIds
 * CodinGamer_findRankingPoints
 * CodinGamer_findTotalAchievementProgress
@@ -25,7 +25,7 @@ APIs currently supported:
 * Puzzle_findAllMinimalProgress
 * Puzzle_findProgressByIds
 * School_findById
-* + getting the user avatar PNG file by file id
+* .. and getting the user avatar PNG file by file id
 
 Usage:
 > php cg_api.php
