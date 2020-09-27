@@ -1,12 +1,16 @@
 <?php
 // --------------------------------------------------------------------
 // CodinGame data downloader & API tool
-// (c) 2020 by Balint Toth
-// v1.02
+// (c) 2020 by Balint Toth (TBali)
+// v1.03
+// latest source can be found at: 
+//   https://github.com/tbali0524/codingame_api
 // --------------------------------------------------------------------
 
 require_once('misc.php');   // defines login credentials with EMAIL and PW constants
 
+// --------------------------------------------------------------------
+// used for default request values and login credentials
 abstract class MySelf
 {
     const Pseudo = "TBali";
@@ -19,6 +23,8 @@ abstract class MySelf
     const Cover = "27032383437051";
 } // class MySelf
 
+// --------------------------------------------------------------------
+// GENERIC API HANDLER
 // --------------------------------------------------------------------
 abstract class CodinGameApi
 {
@@ -35,6 +41,7 @@ abstract class CodinGameApi
     public $fieldFixedKey = NULL;               // string
     public $fieldFixedValue = NULL;             // string
 
+    const BaseURL = "https://www.codingame.com/services/";
     const LeagueName = ["Legend", "Gold", "Silver", "Bronze", "Wood", "Wood", "Wood", "Wood", "Wood", "Wood"];
     const LeagueNameNone = "None";
     const ContentType = "application/json;charset=UTF-8";
@@ -42,7 +49,12 @@ abstract class CodinGameApi
 
     const DefaultPuzzlePublicId = "tower-dereference";
     const DefaultChallengePublicId = "a-code-of-ice-and-fire";
-    const DefaultSoloPuzzleId = 539;  // Let's go to the Cinema
+    const DefaultTopicHandle = "combinatorics";
+    // Hello, World!
+    const DefaultPuzzlePrettyId = "hello-world";
+    const DefaultSoloPuzzleId = 539;
+    const DefaultContributionId = 4528;
+    const DefaultContributionPublicHandle = "452848ff9a694483d6a668e0927484f877e7";
     const MaxDepthJSON = 100;  
 
     public function callApi($session = NULL)
@@ -220,15 +232,17 @@ abstract class CodinGameApi
 } // class CodinGameApi
 
 // --------------------------------------------------------------------
+// SPECIFIC APIs
+// --------------------------------------------------------------------
 class Achievement_findByCodingamerId extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/Achievement/findByCodingamerId";
+    const ServiceURL = "Achievement/findByCodingamerId";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->columnNames = ["id", "title", "categoryId", "groupId", "level", "points"];
         $this->requestJSON = '[' . $this->userId . ']';
@@ -239,11 +253,11 @@ class Achievement_findByCodingamerId extends CodinGameApi
 // --------------------------------------------------------------------
 class Challenge_findAllChallenges extends CodinGameApi
 {
-    const ServiceURL = "https://www.codingame.com/services/Challenge/findAllChallenges";
+    const ServiceURL = "Challenge/findAllChallenges";
 
     public function __construct()
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->columnNames = ["publicId", "title", "type", "date"];
     } // function __construct
 
@@ -254,11 +268,11 @@ class Challenge_findChallengeMinimalInfoByChallengePublicId extends CodinGameApi
 {
     public $challengePublicId;
 
-    const ServiceURL = "https://www.codingame.com/services/Challenge/findChallengeMinimalInfoByChallengePublicId";
+    const ServiceURL = "Challenge/findChallengeMinimalInfoByChallengePublicId";
 
-    public function __construct(string $_challengePublicId = CodinGameApi::DefaultChallengePublicId)
+    public function __construct(string $_challengePublicId = parent::DefaultChallengePublicId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->challengePublicId = $_challengePublicId;
         $this->requestJSON = '["' . $this->challengePublicId . '"]';
     } // function __construct
@@ -278,11 +292,11 @@ class ClashOfCode_getClashRankByCodinGamerId extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/ClashOfCode/getClashRankByCodinGamerId";
+    const ServiceURL = "ClashOfCode/getClashRankByCodinGamerId";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ']';
     } // function __construct
@@ -302,11 +316,11 @@ class CodinGamer_findCodingamePointsStatsByHandle extends CodinGameApi
 {
     public $publicHandle;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findCodingamePointsStatsByHandle";
+    const ServiceURL = "CodinGamer/findCodingamePointsStatsByHandle";
 
     public function __construct(String $_publicHandle = MySelf::PublicHandle)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->requestJSON = '["' . $this->publicHandle . '"]';
     } // function __construct
@@ -320,6 +334,12 @@ class CodinGamer_findCodingamePointsStatsByHandle extends CodinGameApi
             . ($this->result["codingamePointsRankingDto"]["codingamePointsTotal"] ?? "?") . " CP, rank = "
             . ($this->result["codingamePointsRankingDto"]["codingamePointsRank"] ?? "?") . ". from total of "
             . ($this->result["codingamePointsRankingDto"]["numberCodingamers"] ?? "?") . " players.\n";
+        $s .= "Distribution of total CP is "
+            . "Contest: " . ($this->result["codingamePointsRankingDto"]["codingamePointsContests"] ?? "?") 
+            . ", Multi: " . ($this->result["codingamePointsRankingDto"]["codingamePointsMultiTraining"] ?? "?")
+            . ", Optim: " . ($this->result["codingamePointsRankingDto"]["codingamePointsOptim"] ?? "?")
+            . ", Code golf: " . ($this->result["codingamePointsRankingDto"]["codingamePointsCodegolf"] ?? "?")
+            . ", Clash: " . ($this->result["codingamePointsRankingDto"]["codingamePointsClash"] ?? "?") . "\n";
         return $s;
     } // function getSummary
 
@@ -331,11 +351,11 @@ class CodinGamer_findCodinGamerGolfPuzzlePoints extends CodinGameApi
     public $userId;
     const GolfPuzzleIds = [762986, 37513, 54473, 37514];
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findCodinGamerGolfPuzzlePoints";
+    const ServiceURL = "CodinGamer/findCodinGamerGolfPuzzlePoints";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ',['. implode(',', self::GolfPuzzleIds). ']]';
     } // function __construct
@@ -348,11 +368,11 @@ class CodinGamer_findCPByCodinGamerAndPredefinedTestId extends CodinGameApi
     public $userId;
     const DefaultTestIds = [823636,817286,782435, 835210,52158,260665,427580,68589,502798,674483,298135,53134,40288,37511,199893,64142,695739,46738,34944,25745,6634,6188,818833,60823];
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findCPByCodinGamerAndPredefinedTestId";
+    const ServiceURL = "CodinGamer/findCPByCodinGamerAndPredefinedTestId";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ',['. implode(',', self::DefaultTestIds) . ']]';
     } // function __construct
@@ -364,11 +384,11 @@ class CodinGamer_findFollowerIds extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findFollowerIds";
+    const ServiceURL = "CodinGamer/findFollowerIds";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ']';
     } // function __construct
@@ -380,11 +400,11 @@ class CodinGamer_findFollowingIds extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findFollowingIds";
+    const ServiceURL = "CodinGamer/findFollowingIds";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ']';
     } // function __construct
@@ -396,11 +416,11 @@ class CodinGamer_findRankingPoints extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findRankingPoints";
+    const ServiceURL = "CodinGamer/findRankingPoints";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ']';
     } // function __construct
@@ -412,11 +432,11 @@ class CodinGamer_findTotalAchievementProgress extends CodinGameApi
 {
     public $publicHandle;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/findTotalAchievementProgress";
+    const ServiceURL = "CodinGamer/findTotalAchievementProgress";
 
     public function __construct(String $_publicHandle = MySelf::PublicHandle)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->requestJSON = '["' . $this->publicHandle . '"]';
     } // function __construct
@@ -436,11 +456,11 @@ class CodinGamer_getMyConsoleInformation extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/CodinGamer/getMyConsoleInformation";
+    const ServiceURL = "CodinGamer/getMyConsoleInformation";
 
     public function __construct(string $_userId = MySelf::UserId, bool $getPuzzles = TRUE)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         if ($getPuzzles)
         {
@@ -462,11 +482,11 @@ class CodinGamer_getMyConsoleInformation extends CodinGameApi
 // --------------------------------------------------------------------
 class Codingamer_loginSiteV2 extends CodinGameApi
 {
-    const ServiceURL = "https://www.codingame.com/services/Codingamer/loginSiteV2";
+    const ServiceURL = "Codingamer/loginSiteV2";
 
     public function __construct()
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->requestJSON = '["' . Myself::Email . '","' . Myself::Password . '",true]';
     } // function __construct
 
@@ -475,11 +495,11 @@ class Codingamer_loginSiteV2 extends CodinGameApi
 // --------------------------------------------------------------------
 class Leaderboards_findAllPuzzleLeaderboards extends CodinGameApi
 {
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/findAllPuzzleLeaderboards";
+    const ServiceURL = "Leaderboards/findAllPuzzleLeaderboards";
 
     public function __construct()
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->columnNames = ["publicId", "title", "level", "creationTime", "puzzleId"];
     } // function __construct
 
@@ -491,11 +511,11 @@ class Leaderboards_getCodinGamerChallengeRanking extends CodinGameApi
     public $userId;
     public $challengePublicId;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getCodinGamerChallengeRanking";
+    const ServiceURL = "Leaderboards/getCodinGamerChallengeRanking";
 
-    public function __construct(string $_challengePublicId = CodinGameApi::DefaultChallengePublicId, string $_userId = MySelf::UserId)
+    public function __construct(string $_challengePublicId = parent::DefaultChallengePublicId, string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->challengePublicId = $_challengePublicId;
         $this->requestJSON = '[' . $this->userId . ',"' . $this->challengePublicId . '","global"]';
@@ -522,11 +542,11 @@ class Leaderboards_getCodinGamerClashRanking extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getCodinGamerClashRanking";
+    const ServiceURL = "Leaderboards/getCodinGamerClashRanking";
 
-    public function __construct(string $_challengePublicId = CodinGameApi::DefaultChallengePublicId, string $_userId = MySelf::UserId)
+    public function __construct(string $_challengePublicId = parent::DefaultChallengePublicId, string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->requestJSON = '[' . $this->userId . ',"global",null]';
     } // function __construct
@@ -547,11 +567,11 @@ class Leaderboards_getCodinGamerGlobalRankingByHandle extends CodinGameApi
 {
     public $publicHandle;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getCodinGamerGlobalRankingByHandle";
+    const ServiceURL = "Leaderboards/getCodinGamerGlobalRankingByHandle";
 
     public function __construct(string $_publicHandle = MySelf::PublicHandle)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->requestJSON = '["' . $this->publicHandle . '","GENERAL","global",null]';
     } // function __construct
@@ -576,11 +596,11 @@ class Leaderboards_getFilteredChallengeLeaderboard extends Leaderboards_getFilte
     public $publicHandle;
     public $challengePublicId;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getFilteredChallengeLeaderboard";
+    const ServiceURL = "Leaderboards/getFilteredChallengeLeaderboard";
 
-    public function __construct(string $_challengePublicId = CodinGameApi::DefaultChallengePublicId, string $_publicHandle = MySelf::PublicHandle)
+    public function __construct(string $_challengePublicId = parent::DefaultChallengePublicId, string $_publicHandle = MySelf::PublicHandle)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->challengePublicId = $_challengePublicId;
         $this->keyToGetRows = "users";
@@ -598,11 +618,11 @@ class Leaderboards_getFilteredPuzzleLeaderboard extends CodinGameApi
     public $publicHandle;
     public $puzzlePublicId;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getFilteredPuzzleLeaderboard";
+    const ServiceURL = "Leaderboards/getFilteredPuzzleLeaderboard";
 
-    public function __construct(string $_puzzlePublicId = CodinGameApi::DefaultPuzzlePublicId, string $_publicHandle = MySelf::PublicHandle)
+    public function __construct(string $_puzzlePublicId = parent::DefaultPuzzlePublicId, string $_publicHandle = MySelf::PublicHandle)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->puzzlePublicId = $_puzzlePublicId;
         $this->keyToGetRows = "users";
@@ -621,12 +641,12 @@ class Leaderboards_getGlobalLeaderboard extends CodinGameApi
     public $pageNum;
     public $leaderboardType;
 
-    const ServiceURL = "https://www.codingame.com/services/Leaderboards/getGlobalLeaderboard";
+    const ServiceURL = "Leaderboards/getGlobalLeaderboard";
     const leaderBoardTypes = ["GENERAL", "CONTESTS", "BOT_PROGRAMMING", "OPTIM", "CODEGOLF"];
 
     public function __construct(int $_pageNum = 1, string $_publicHandle = MySelf::PublicHandle, string $_leaderboardType = "GENERAL")
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->publicHandle = $_publicHandle;
         $this->pageNum = $_pageNum;
         $this->leaderboardType = $_leaderboardType;
@@ -642,11 +662,11 @@ class Puzzle_findAllMinimalProgress extends CodinGameApi
 {
     public $userId;
 
-    const ServiceURL = "https://www.codingame.com/services/Puzzle/findAllMinimalProgress";
+    const ServiceURL = "Puzzle/findAllMinimalProgress";
 
     public function __construct(string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->authNeeded = TRUE;
         $this->columnNames = ["id", "level", "creationTime", "solvedCount"];
@@ -661,11 +681,11 @@ class Puzzle_findProgressByIds extends CodinGameApi
     public $userId;
     public $puzzleIdArray;
 
-    const ServiceURL = "https://www.codingame.com/services/Puzzle/findProgressByIds";
+    const ServiceURL = "Puzzle/findProgressByIds";
 
-    public function __construct(array $_puzzleIdArray = [CodinGameApi::DefaultSoloPuzzleId], string $_userId = MySelf::UserId)
+    public function __construct(array $_puzzleIdArray = [parent::DefaultSoloPuzzleId], string $_userId = MySelf::UserId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
         $this->puzzleIdArray = $_puzzleIdArray;
         $this->columnNames = ["prettyId", "title", "level", "creationTime", "id", "solvedCount", "globalTotal", "leagueName", "position", "total"];
@@ -679,11 +699,11 @@ class School_findById extends CodinGameApi
 {
     public $schoolId;
 
-    const ServiceURL = "https://www.codingame.com/services/School/findById";
+    const ServiceURL = "School/findById";
 
     public function __construct(string $_schoolId = MySelf::SchoolId)
     {
-        $this->serviceURL = self::ServiceURL;
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->schoolId = $_schoolId;
         $this->requestJSON = '[' . $this->schoolId . ']';
     } // function __construct
@@ -700,6 +720,340 @@ class School_findById extends CodinGameApi
     } // function getSummary
 
 } // class School_findById
+
+// --------------------------------------------------------------------
+class CodingamerPuzzleTopic_findTopicsByCodingamerId extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "CodingamerPuzzleTopic/findTopicsByCodingamerId";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->columnNames = ["handle", "category", "label", "puzzleCount"];
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+} // class CodingamerPuzzleTopic_findTopicsByCodingamerId
+
+// --------------------------------------------------------------------
+class Puzzle_countSolvedPuzzlesByProgrammingLanguage extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "Puzzle/countSolvedPuzzlesByProgrammingLanguage";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->columnNames = ["programmingLanguageId", "languageName", "puzzleCount"];
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+} // class Puzzle_countSolvedPuzzlesByProgrammingLanguage
+
+// --------------------------------------------------------------------
+class Quest_countLootableQuests extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "Quest/countLootableQuests";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Player '" . $this->userId . "' has " . ($this->responseJSON ?? "?") . " lootable quests.\n";
+        return $s;
+    } // function getSummary
+
+} // class Quest_countLootableQuests
+
+// --------------------------------------------------------------------
+class Quest_findQuestMap extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "Quest/findQuestMap";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class Quest_findQuestMap
+
+// --------------------------------------------------------------------
+class LastActivities_getLastActivities extends CodinGameApi
+{
+    public $userId;
+    public $countActivities;
+
+    const ServiceURL = "LastActivities/getLastActivities";
+
+    public function __construct(string $_userId = MySelf::UserId, int $_countActivities = 3)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->countActivities = $_countActivities;
+        $this->requestJSON = '[' . $this->userId . ',' . $this->countActivities . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class LastActivities_getLastActivities
+
+// --------------------------------------------------------------------
+class Career_getCodinGamerOptinLocation extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "career/getCodinGamerOptinLocation";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Player '" . $this->userId . "' is from "
+        . ($this->result["countryName"] ?? "?") . " ["
+        . ($this->result["countryIsoCode"] ?? "??") . "], "
+        . ($this->result["subdivision1Name"] ?? "?") . "\n";
+        return $s;
+    } // function getSummary
+
+} // class Career_getCodinGamerOptinLocation
+
+// --------------------------------------------------------------------
+class Certification_findTopCertifications extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "Certification/findTopCertifications";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->columnNames = ["category", "level"];
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+} // class Certification_findTopCertifications
+
+// --------------------------------------------------------------------
+class CodinGamer_findCodinGamerPublicInformations extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "CodinGamer/findCodinGamerPublicInformations";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->requestJSON = '[' . $this->userId . ']';
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Player '" . $this->userId . "' (pseudo: '"
+            . ($this->result["pseudo"] ?? "?") . "') has level "
+            . ($this->result["level"] ?? "?") . " and is from "
+            . ($this->result["city"] ?? "?") . ", "
+            . ($this->result["countryId"] ?? "??") . "\n";
+        return $s;
+    } // function getSummary
+
+} // class CodinGamer_findCodinGamerPublicInformations
+
+// --------------------------------------------------------------------
+class CodinGamer_findFollowing extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "CodinGamer/findFollowing";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->columnNames = ["userId", "pseudo", "countryId", "city", "level", "points", "rank"];
+        $this->requestJSON = '[' . $this->userId . ',' . $this->userId . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class CodinGamer_findFollowing
+
+// --------------------------------------------------------------------
+class CodinGamer_findFollowers extends CodinGameApi
+{
+    public $userId;
+
+    const ServiceURL = "CodinGamer/findFollowers";
+
+    public function __construct(string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->columnNames = ["userId", "pseudo", "countryId", "city", "level", "points", "rank"];
+        $this->requestJSON = '[' . $this->userId . ',' . $this->userId . ', null]';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class CodinGamer_findFollowers
+
+// --------------------------------------------------------------------
+class Contribution_getAllPendingContributions extends CodinGameApi
+{
+    public $userId;
+    public $filter;
+
+    const ServiceURL = "Contribution/getAllPendingContributions";
+    const leaderBoardTypes = ["ALL", "PUZZLE", "CLASHOFCODE"];
+
+    public function __construct(string $_userId = MySelf::UserId, string $_filter = "ALL")
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->filter = $_filter;
+        $this->columnNames = ["id", "title", "type", "status",  "nickname", "codingamerId", "publicHandle", "upVotes"];
+        $this->requestJSON = '[1,"' . $this->filter . '",' . $this->userId . ']';
+    } // function __construct
+
+} // class Contribution_getAllPendingContributions
+
+// --------------------------------------------------------------------
+class Contribution_getAcceptedContributions extends CodinGameApi
+{
+    public $filter;
+
+    const ServiceURL = "Contribution/getAcceptedContributions";
+    const leaderBoardTypes = ["ALL", "PUZZLE", "CLASHOFCODE"];
+
+    public function __construct(string $_filter = "ALL")
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->filter = $_filter;
+        $this->columnNames = ["id", "title", "type", "status",  "nickname", "codingamerId", "publicHandle", "upVotes"];
+        $this->requestJSON = '["' . $this->filter . '"]';
+    } // function __construct
+
+} // class Contribution_getAcceptedContributions
+
+// --------------------------------------------------------------------
+class Contribution_findContribution extends CodinGameApi
+{
+    public $contributionPublicHandle;
+
+    const ServiceURL = "Contribution/findContribution";
+
+    public function __construct(string $_contributionPublicHandle = parent::DefaultContributionPublicHandle)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->contributionPublicHandle = $_contributionPublicHandle;
+        $this->requestJSON = '["' . $this->contributionPublicHandle . '",true]';
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Contribution '" . $this->contributionPublicHandle . "' ('"
+            . ($this->result["title"] ?? "?") . "') by '"
+            . ($this->result["nickname"] ?? "?") . "' is a '"
+            . ($this->result["type"] ?? "?") . "' and received "
+            . ($this->result["score"] ?? "??") . " score.\n";
+        return $s;
+    }
+
+} // class Contribution_findContribution
+
+// --------------------------------------------------------------------
+class Contribution_findContributionModerators extends CodinGameApi
+{
+    public $contributionId;
+
+    const ServiceURL = "Contribution/findContributionModerators";
+
+    public function __construct(string $_contributionId = parent::DefaultContributionId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->contributionId= $_contributionId;
+        $this->columnNames = ["userId", "pseudo", "publicHandle"];
+        $this->requestJSON = '[' . $this->contributionId . ',"validate"]';
+    } // function __construct
+
+} // class Contribution_findContributionModerators
+
+// --------------------------------------------------------------------
+class Puzzle_findProgressByPrettyId extends CodinGameApi
+{
+    public $userId;
+    public $puzzlePrettyId;
+
+    const ServiceURL = "Puzzle/findProgressByPrettyId";
+
+    public function __construct(string $_puzzlePrettyId = parent::DefaultPuzzlePrettyId, string $_userId = MySelf::UserId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->puzzlePrettyId = $_puzzlePrettyId;
+        $this->requestJSON = '["' . $this->puzzlePrettyId . '",'. $this->userId . ']';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+    public function getSummary(): string
+    {
+        if (is_null($this->result))
+            return "";
+        $s = "Puzzle '" . $this->puzzlePrettyId . "' (id: "
+            . ($this->result["id"] ?? "?") . ") is '"
+            . ($this->result["level"] ?? "?") . "' level puzzle, solved by "
+            . ($this->result["solvedCount"] ?? "?") . " players from "
+            . ($this->result["attemptCount"] ?? "?") . " attempts.\n";
+        return $s;
+    }
+
+} // class Puzzle_findProgressByPrettyId
+
+// --------------------------------------------------------------------
+class Topic_findTopicPageByTopicHandle extends CodinGameApi
+{
+    public $topicHandle;
+
+    const ServiceURL = "Topic/findTopicPageByTopicHandle";
+
+    public function __construct(string $_topicHandle = parent::DefaultTopicHandle)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->topicHandle= $_topicHandle;
+        $this->requestJSON = '["' . $this->topicHandle . '"]';
+    } // function __construct
+
+} // class Topic_findTopicPageByTopicHandle
 
 // --------------------------------------------------------------------
 class CG_Avatar extends CodinGameApi
@@ -736,6 +1090,8 @@ class CG_Avatar extends CodinGameApi
 
 } // class CG_Avatar
 
+// --------------------------------------------------------------------
+// Data extraction wrapper class
 // --------------------------------------------------------------------
 class CG
 {
@@ -795,6 +1151,11 @@ class CG
         "coders-of-the-realm---1v1",
         "coders-of-the-realm",
         "tulips-and-daisies",
+        "yinsh",
+        "othello-1",
+        "atari-go",
+        "dots-and-boxes",
+        "atari-go-9x9",
 
         // optim
         "mars-lander-fuel",
@@ -808,6 +1169,7 @@ class CG
         "cgfunge-prime",
         "number-shifting",
         "bulls-and-cows-2",
+        "samegame",
 
         // codegolf
         "paranoid-codesize",
@@ -895,22 +1257,22 @@ class CG
         "tutorial"  => [43],
         "easy"      => [4, 5, 6, 7, 8, 9, 10, 40, 108, 121, 133, 154, 171, 182, 188, 203, 210, 229, 235, 238, 319, 341, 343, 345, 351, 355, 358, 360, 373, 393, 395, 
             396, 403, 408, 419, 428, 429, 433, 437, 441, 442, 443, 451, 454, 455, 459, 465, 469, 501, 505, 508, 512, 515, 516, 517, 519, 520, 521, 525, 528, 535, 542, 
-            546, 552, 558, 562, 576, 581, 586, 587],
+            546, 552, 558, 562, 576, 581, 586, 587, 611, 612, 614, 615, 623, 627, 630, 639, 643, 644, 647, 648, 652, 653],
         "medium"    => [1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 41, 47, 50, 54, 111, 86, 106, 116, 112, 76, 77, 78, 87, 95, 97, 103, 104, 120, 123, 128, 131, 132, 
             142, 147, 150, 157, 158, 159, 161, 169, 170, 172, 173, 174, 187, 190, 193, 198, 199, 202, 207, 220, 223, 227, 228, 230, 233, 234, 239, 243, 244, 245, 246, 
             299, 322, 326, 331, 332, 336, 337, 339, 344, 349, 350, 352, 354, 361, 363, 364, 366, 367, 370, 372, 374, 375, 377, 384, 386, 387, 388, 394, 397, 400, 401, 
             402, 406, 413, 415, 421, 422, 423, 424, 425, 426, 427, 434, 435, 436, 438, 440, 444, 445, 446, 448, 452, 456, 457, 462, 466, 470, 472, 475, 478, 479, 480, 
             482, 484, 485, 487, 488, 490, 492, 499, 502, 503, 510, 511, 518, 522, 526, 529, 531, 532, 533, 537, 538, 539, 543, 544, 545, 548, 551, 561, 565, 566, 567,
-            569, 570, 578, 582, 584, 585],
+            569, 570, 578, 582, 584, 585, 591, 602, 616, 618, 619, 620, 621, 625, 629, 633, 638, 641, 645, 646, 649],
         "hard"      => [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 44, 48, 55, 113, 96, 89, 109, 85, 100, 84, 119, 122, 125, 127, 130, 134, 135, 136, 138, 
             141, 143, 145, 146, 153, 162, 167, 176, 179, 180, 181, 183, 184, 185, 192, 195, 196, 197, 200, 217, 219, 222, 224, 225, 231, 232, 236, 240, 241, 248, 249, 
             250, 251, 252, 254, 255, 293, 294, 307, 308, 312, 313, 314, 315, 318, 320, 325, 327, 330, 340, 342, 346, 347, 356, 365, 369, 371, 378, 398, 399, 404, 405, 
-            407, 412, 417, 418, 431, 432, 453, 458, 463, 476, 477, 486, 506, 507, 523, 547, 554, 559, 590, 591],
+            407, 412, 417, 418, 431, 432, 453, 458, 463, 476, 477, 486, 506, 507, 523, 547, 554, 559, 590, 609, 622, 624, 632, 640, 642, 651],
         "expert"    => [36, 37, 38, 39, 42, 46, 49, 79, 126, 129, 137, 139, 140, 149, 151, 152, 160, 175, 177, 178, 186, 189, 191, 194, 201, 211, 226, 237, 242, 253, 
-            309, 310, 311, 321, 323, 328, 348, 357, 368, 381, 385, 411, 414, 527, 555],
+            309, 310, 311, 321, 323, 328, 348, 357, 368, 381, 385, 411, 414, 527, 555, 650],
         "multi"     => [63, 64, 68, 66, 65, 67, 69, 148, 156, 168, 221, 247, 298, 324, 329, 359, 376, 380, 382, 383, 410, 420, 450, 460, 468, 471, 473, 474, 481, 483, 
-            491, 500, 530, 549, 550, 553, 560, 564, 572, 573, 577, 580, 583, 592], 
-        "optim" => [56, 60, 70, 71, 439, 461, 524, 563, 575],
+            491, 500, 530, 549, 550, 553, 560, 564, 572, 573, 577, 580, 583, 592, 610, 613, 617, 628, 631], 
+        "optim" => [56, 60, 70, 71, 439, 461, 524, 563, 575, 593, 626],
         "codegolf"  => [57, 58, 73, 464],
     );
 
@@ -1086,24 +1448,43 @@ class CG
         /*  2 */ "Challenge_findChallengeMinimalInfoByChallengePublicId", 
         /*  3 */ "ClashOfCode_getClashRankByCodinGamerId",
         /*  4 */ "CodinGamer_findCodingamePointsStatsByHandle", 
-        /*  5 */ "CodinGamer_findCodinGamerGolfPuzzlePoints", 
-        /*  6 */ "CodinGamer_findCPByCodinGamerAndPredefinedTestId", 
-        /*  7 */ "CodinGamer_findFollowerIds", 
-        /*  8 */ "CodinGamer_findFollowingIds", 
-        /*  9 */ "CodinGamer_findRankingPoints", 
-        /* 10 */ "CodinGamer_findTotalAchievementProgress", 
-        /* 11 */ "CodinGamer_getMyConsoleInformation", 
-        /* 12 */ "Codingamer_loginSiteV2", 
-        /* 13 */ "Leaderboards_findAllPuzzleLeaderboards", 
-        /* 14 */ "Leaderboards_getCodinGamerChallengeRanking", 
-        /* 15 */ "Leaderboards_getCodinGamerClashRanking", 
-        /* 16 */ "Leaderboards_getCodinGamerGlobalRankingByHandle", 
-        /* 17 */ "Leaderboards_getFilteredChallengeLeaderboard", 
-        /* 18 */ "Leaderboards_getFilteredPuzzleLeaderboard", 
-        /* 19 */ "Leaderboards_getGlobalLeaderboard", 
-        /* 20 */ "Puzzle_findAllMinimalProgress",
-        /* 21 */ "Puzzle_findProgressByIds", 
-        /* 22 */ "School_findById", 
+        /*  5 */ "CodinGamer_findFollowerIds", 
+        /*  6 */ "CodinGamer_findFollowingIds", 
+        /*  7 */ "CodinGamer_findRankingPoints", 
+        /*  8 */ "CodinGamer_findTotalAchievementProgress", 
+        /*  9 */ "CodinGamer_getMyConsoleInformation", 
+        /* 10 */ "Codingamer_loginSiteV2", 
+        /* 11 */ "Leaderboards_findAllPuzzleLeaderboards", 
+        /* 12 */ "Leaderboards_getCodinGamerChallengeRanking", 
+        /* 13 */ "Leaderboards_getCodinGamerClashRanking", 
+        /* 14 */ "Leaderboards_getCodinGamerGlobalRankingByHandle", 
+        /* 15 */ "Leaderboards_getFilteredChallengeLeaderboard", 
+        /* 16 */ "Leaderboards_getFilteredPuzzleLeaderboard", 
+        /* 17 */ "Leaderboards_getGlobalLeaderboard", 
+        /* 18 */ "Puzzle_findAllMinimalProgress",
+        /* 19 */ "Puzzle_findProgressByIds", 
+        /* 20 */ "School_findById", 
+
+        /* 21 */ "CodingamerPuzzleTopic_findTopicsByCodingamerId",
+        /* 22 */ "Puzzle_countSolvedPuzzlesByProgrammingLanguage",
+        /* 23 */ "Quest_countLootableQuests",
+        /* 24 */ "Quest_findQuestMap",
+        /* 25 */ "LastActivities_getLastActivities",
+        /* 26 */ "Career_getCodinGamerOptinLocation",
+        /* 27 */ "Certification_findTopCertifications",
+        /* 28 */ "CodinGamer_findCodinGamerPublicInformations",
+        /* 29 */ "CodinGamer_findFollowing",
+        /* 30 */ "CodinGamer_findFollowers",
+        /* 31 */ "Contribution_getAllPendingContributions",
+        /* 32 */ "Contribution_getAcceptedContributions",
+        /* 33 */ "Contribution_findContribution",
+        /* 34 */ "Contribution_findContributionModerators",
+        /* 35 */ "Puzzle_findProgressByPrettyId",
+        /* 36 */ "Topic_findTopicPageByTopicHandle",
+
+        // obsolete:
+        //      "CodinGamer_findCodinGamerGolfPuzzlePoints", 
+        //      "CodinGamer_findCPByCodinGamerAndPredefinedTestId", 
     );
 
 } // class CG
@@ -1113,7 +1494,7 @@ class CG
 $g = new CG;
 echo "CodinGame data downloader & API tool, (c) 2020 by Balint Toth (TBali)\n";
 $g->testAll();
-// $g->testAPI();
+// $g->testAPI(36);
 // $g->testEmulated();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();

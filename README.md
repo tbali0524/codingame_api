@@ -7,8 +7,6 @@ APIs currently supported:
 * Challenge_findChallengeMinimalInfoByChallengePublicId
 * ClashOfCode_getClashRankByCodinGamerId
 * CodinGamer_findCodingamePointsStatsByHandle
-* CodinGamer_findCodinGamerGolfPuzzlePoints
-* CodinGamer_findCPByCodinGamerAndPredefinedTestId
 * CodinGamer_findFollowerIds
 * CodinGamer_findFollowingIds
 * CodinGamer_findRankingPoints
@@ -25,12 +23,33 @@ APIs currently supported:
 * Puzzle_findAllMinimalProgress
 * Puzzle_findProgressByIds
 * School_findById
-* .. and getting the user avatar PNG file by file id
+* CodingamerPuzzleTopic_findTopicsByCodingamerId
+* Puzzle_countSolvedPuzzlesByProgrammingLanguage
+* Quest_countLootableQuests
+* Quest_findQuestMap
+* LastActivities_getLastActivities
+* Career_getCodinGamerOptinLocation
+* Certification_findTopCertifications
+* CodinGamer_findCodinGamerPublicInformations
+* CodinGamer_findFollowing
+* CodinGamer_findFollowers
+* Contribution_getAllPendingContributions
+* Contribution_getAcceptedContributions
+* Contribution_findContribution
+* Contribution_findContributionModerators
+* Puzzle_findProgressByPrettyId
+* Topic_findTopicPageByTopicHandle
+* ... and getting the user avatar PNG file by file id
 
 Usage:
 > php cg_api.php
 
-or
+or (redirecting report to output.txt)
 > test.bat
 
-Edit which test cases to run near the end of the source file. All tests run in 2-3 minutes.
+Clear all generated files (*.json, *.csv, output.txt, avatar.png) with
+> clear.bat
+
+Edit which test cases to run near the end of the source file. All tests run in 3-4 minutes.
+
+Licence: GNU General Public License v3 (I kindly ask for attribution.)
