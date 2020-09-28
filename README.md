@@ -39,6 +39,8 @@ APIs currently supported:
 * Contribution_findContributionModerators
 * Puzzle_findProgressByPrettyId
 * Topic_findTopicPageByTopicHandle
+* Solution_findMySolutions
+* Solution_findBestSolutions
 * ... and getting the user avatar PNG file by file id
 
 Usage:
@@ -47,9 +49,9 @@ Usage:
 or (redirecting report to output.txt)
 > test.bat
 
-Clear all generated files (*.json, *.csv, output.txt, avatar.png) with
+Clear all generated files (*.json, *.csv, output.txt, avatar.png, cookie.txt) with
 > clear.bat
 
-Edit which test cases to run near the end of the source file. All tests run in 3-4 minutes.
+Edit which test cases to run near the end of the source file. All tests run in ~5 minutes.
 
 Licence: GNU General Public License v3 (I kindly ask for attribution.)

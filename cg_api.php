@@ -1056,6 +1056,51 @@ class Topic_findTopicPageByTopicHandle extends CodinGameApi
 } // class Topic_findTopicPageByTopicHandle
 
 // --------------------------------------------------------------------
+class Solution_findMySolutions extends CodinGameApi
+{
+    public $userId;
+    public $soloPuzzleId;
+
+    const ServiceURL = "Solution/findMySolutions";
+
+    public function __construct(string $_userId = MySelf::UserId, string $_soloPuzzleId = parent::DefaultSoloPuzzleId)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->soloPuzzleId = $_soloPuzzleId;
+        $this->columnNames = ["pseudo", "programmingLanguageId"];
+        $this->requestJSON = '[' . $this->userId . ','. $this->soloPuzzleId .  ',null]';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class Solution_findMySolutions
+
+// --------------------------------------------------------------------
+class Solution_findBestSolutions extends CodinGameApi
+{
+    public $userId;
+    public $soloPuzzleId;
+    public $programmingLanguageId;
+
+    const ServiceURL = "Solution/findBestSolutions";
+
+    public function __construct(string $_userId = MySelf::UserId, string $_soloPuzzleId = parent::DefaultSoloPuzzleId, ?string $_programmingLanguageId = NULL)
+    {
+        $this->serviceURL = parent::BaseURL . self::ServiceURL;
+        $this->userId = $_userId;
+        $this->soloPuzzleId = $_soloPuzzleId;
+        $this->programmingLanguageId = $_programmingLanguageId;
+        $this->columnNames = ["pseudo", "programmingLanguageId", "codingamerId"];
+        if (is_null($this->programmingLanguageId))
+            $this->requestJSON = '[' . $this->userId . ','. $this->soloPuzzleId .  ',null,false]';
+        else
+            $this->requestJSON = '[' . $this->userId . ','. $this->soloPuzzleId .  ',"'. $this->programmingLanguageId . '", false]';
+        $this->authNeeded = TRUE;
+    } // function __construct
+
+} // class Solution_findBestSolutions
+
+// --------------------------------------------------------------------
 class CG_Avatar extends CodinGameApi
 {
     public $id;
@@ -1169,6 +1214,7 @@ class CG
         "cgfunge-prime",
         "number-shifting",
         "bulls-and-cows-2",
+        "search-race",
         "samegame",
 
         // codegolf
@@ -1442,6 +1488,7 @@ class CG
     } // function testAll
 
     const DefaultIdxAPI = 16;
+    // call TestAPI() with the integer key from this array
     const APInames = array(
         /*  0 */ "Achievement_findByCodingamerId",
         /*  1 */ "Challenge_findAllChallenges", 
@@ -1481,6 +1528,8 @@ class CG
         /* 34 */ "Contribution_findContributionModerators",
         /* 35 */ "Puzzle_findProgressByPrettyId",
         /* 36 */ "Topic_findTopicPageByTopicHandle",
+        /* 37 */ "Solution_findMySolutions",
+        /* 38 */ "Solution_findBestSolutions",
 
         // obsolete:
         //      "CodinGamer_findCodinGamerGolfPuzzlePoints", 
@@ -1494,7 +1543,7 @@ class CG
 $g = new CG;
 echo "CodinGame data downloader & API tool, (c) 2020 by Balint Toth (TBali)\n";
 $g->testAll();
-// $g->testAPI(36);
+// $g->testAPI(16);
 // $g->testEmulated();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();
