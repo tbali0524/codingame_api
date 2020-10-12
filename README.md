@@ -10,9 +10,9 @@ APIs currently supported:
 * ClashOfCode_getClashRankByCodinGamerId
 * CodinGamer_findCodingamePointsStatsByHandle
 * CodinGamer_findCodinGamerPublicInformations
+* CodinGamer_findFollowerIds
 * CodinGamer_findFollowers
 * CodinGamer_findFollowing
-* CodinGamer_findFollowerIds
 * CodinGamer_findFollowingIds
 * CodinGamer_findRankingPoints
 * CodinGamer_findTotalAchievementProgress
@@ -55,7 +55,7 @@ Usage:
 or in Windows you can redirecting report to output.txt by invoking
 > test.bat
 
-Clear all generated files (*.json, *.csv, output.txt, avatar.png, cookie.txt) with
+Clear all generated files (request*.json, response*.json, result*.csv, output.txt, avatar.png, cookie.txt) with
 > clear.bat
 
 You can edit which test cases to run near the very end of the source file. 
