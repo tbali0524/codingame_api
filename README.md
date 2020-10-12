@@ -47,7 +47,7 @@ Composite functions with multiple API calls:
 * Getting all puzzles info
 * Getting all puzzle leaderboards
 * Getting all challenge leaderboards
-* Getting achievement count and puzzles solved per language for top 1000 players on global leaderboard 
+* Getting achievement count and number of puzzles solved per language for top players on global leaderboard 
 
 Usage:
 > php cg_api.php

@@ -2,7 +2,7 @@
 // --------------------------------------------------------------------
 // CodinGame data downloader & API tool
 // (c) 2020 by Balint Toth (TBali)
-// v1.04
+// v1.05
 // latest source can be found at: 
 //   https://github.com/tbali0524/codingame_api
 // --------------------------------------------------------------------
@@ -1198,6 +1198,8 @@ class CG_Avatar extends CodinGameApi
 // --------------------------------------------------------------------
 class CG
 {
+    public $countCalls = 0;
+
     const InputFileNameJSON = "input.json";
     const FileNamePrefixRequestJSON = "request_";
     const FileNamePrefixJSON = "response_";
@@ -1405,6 +1407,7 @@ class CG
         else
         {
             echo "--- calling API: " . $g->serviceURL . "\n";
+            $this->countCalls++;
             $g->callApi();
         }
         $fileName = self::FileNamePrefixJSON . $apiName . self::FileNamePostfixJSON;
@@ -1430,6 +1433,7 @@ class CG
         echo str_repeat("=", 28) . "\n";
         $apiName = self::APInames[self::DefaultIdxAPI];
         $g = new $apiName;
+        $this->countCalls++;
         $g->callApi();
         $fileName = self::InputFileNameJSON;
         $g->writeResponseJSON(self::InputFileNameJSON);
@@ -1459,6 +1463,7 @@ class CG
             $idList = self::PuzzleIds[$level];
         }
         $g = new Puzzle_findProgressByIds($idList);
+        $this->countCalls++;
         $g->callApi();
         $fileName = self::FileNamePrefixJSON . $name . self::FileNamePostfixJSON;
         echo "--- writing API response to file: " . $fileName . "\n";
@@ -1487,6 +1492,7 @@ class CG
         foreach(self::PuzzlePublicIds as $puzzlePublicId)
         {
             $g = new Leaderboards_getFilteredPuzzleLeaderboard($puzzlePublicId);
+            $this->countCalls++;
             $g->callApi();
             $countUid = $g->writeFilteredCSV($f, $isFirst, $nextUid);
             $nextUid += $countUid; 
@@ -1511,6 +1517,7 @@ class CG
         foreach(self::ChallengePublicIds as $challengePublicId)
         {
             $g = new Leaderboards_getFilteredChallengeLeaderboard($challengePublicId);
+            $this->countCalls++;
             $g->callApi();
             $countUid = $g->writeFilteredCSV($f, $isFirst, $nextUid);
             $nextUid += $countUid; 
@@ -1520,10 +1527,12 @@ class CG
         echo "--- END ---\n\n";
     } // function generateAllChallengeLeaderboardCSV
 
-    public function generateLanguageLeaderboardCSV(): void
+    public function generateLanguageLeaderboardCSV(int $numPlayers = 100, int $fromPlayer = 1): void
     {
+    	$startTime = microtime(TRUE);
+        $startCounter = $this->countCalls;
         echo str_repeat("=", 60) . "\n";
-        echo " Getting achievement count and puzzles solved per language for top 1000 players on global leaderboard:\n";
+        echo " Getting achievement count and puzzles solved per language for top players on global leaderboard:\n";
         echo str_repeat("=", 76) . "\n";
         echo "--- calling API: Leaderboards_getGlobalLeaderboard (multiple times)\n";
         echo "--- calling API: CodinGamer_findTotalAchievementProgress (multiple times)\n";
@@ -1532,11 +1541,14 @@ class CG
         echo "--- writing CSV export to file: " . $fileName . "\n";
         $f = fopen($fileName, "w")
             or die("ERROR: Cannot create csv file.");
-        for ($pageNum = 1; $pageNum <= 10; $pageNum++)
+        $fromPageNum = max(1, ceil($fromPlayer / 100));
+        $maxPageNum = max(1, ceil($numPlayers / 100));
+        for ($pageNum = $fromPageNum; $pageNum <= $maxPageNum; $pageNum++)
         {
             $g = new Leaderboards_getGlobalLeaderboard($pageNum);
             $g->columnNames[] = "codingamer";
             $g->columnNamesDepth2[] = "publicHandle";
+            $this->countCalls++;
             $g->callApi();
             $g->extractFilteredTable();
             foreach ($g->filteredResult as $idx => $row)
@@ -1544,10 +1556,12 @@ class CG
                 $userId = $row["userId"];
                 $publicHandle = $row["publicHandle"];
                 $apiAchievement = new CodinGamer_findTotalAchievementProgress($publicHandle);
+                $this->countCalls++;
                 $apiAchievement->callApi();
                 $achievementCount = $apiAchievement->result["achievementCount"] ?? 0;
                 $g->filteredResult[$idx]["achievementCount"] = $achievementCount;
                 $apiLanguage = new Puzzle_countSolvedPuzzlesByProgrammingLanguage($userId);
+                $this->countCalls++;
                 $apiLanguage->callApi();
                 $puzzleCounts = array();
                 foreach (self::LanguageIds as $languageId)
@@ -1566,6 +1580,10 @@ class CG
             $g->writeFilteredTableCSV($f, $pageNum == 1);
         }
         fclose($f);
+        $totalCounter = $this->countCalls - $startCounter;
+        $thinkTime = microtime(TRUE) - $startTime;
+        echo "Number of API calls: " . $totalCounter . "\n";
+        echo "Time spent: " . number_format($thinkTime, 0, '.', '') . " sec\n";
         echo "--- END ---\n\n";
     } // function generateLanguageLeaderboardCSV
 
@@ -1576,6 +1594,7 @@ class CG
         echo str_repeat("=", 32) . "\n";
         $g = new CG_Avatar;
         echo "--- calling GET: " . $g->serviceURL . "\n";
+        $this->countCalls++;
         $g->getAvatar(self::AvatarFileName);
         echo "--- writing PNG response to file: " . self::AvatarFileName . "\n";
         echo "--- END ---\n\n";
@@ -1584,6 +1603,7 @@ class CG
     public function testAll(): void
     {
     	$startTime = microtime(TRUE);
+        $this->countCalls = 0;
         echo str_repeat("=", 60) . "\n";
         echo "REGRESSION TESTING\n\n";
         $this->testEmulated();
@@ -1594,6 +1614,7 @@ class CG
         $this->generateAllChallengeLeaderboardCSV();
         $this->testAvatar();
         $thinkTime = microtime(TRUE) - $startTime;
+        echo "Total number of API calls: " . $this->countCalls . "\n";
         echo "Running all tests took " . number_format($thinkTime, 0, '.', '') . " sec\n";
         echo "--- ALL TESTS ENDED ---\n";
     } // function testAll
@@ -1651,12 +1672,12 @@ class CG
 // main program
 $g = new CG;
 echo "CodinGame data downloader & API tool, (c) 2020 by Balint Toth (TBali)\n";
-$g->testAll(); // generateLanguageLeaderboardCSV() not included
+//$g->testAll(); // generateLanguageLeaderboardCSV() not included
 // $g->testAPI(27);
 // $g->testEmulated();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();
 // $g->generateAllChallengeLeaderboardCSV();
 // $g->testAvatar();
-// $g->generateLanguageLeaderboardCSV();
+$g->generateLanguageLeaderboardCSV();
 ?>
