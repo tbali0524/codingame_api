@@ -829,7 +829,7 @@ class Leaderboards_getCodinGamerClashRanking extends CodinGameApi
 
     const ServiceURL = "Leaderboards/getCodinGamerClashRanking";
 
-    public function __construct(string $_challengePublicId = parent::DefaultChallengePublicId, string $_userId = MySelf::UserId)
+    public function __construct(string $_userId = MySelf::UserId)
     {
         $this->serviceURL = parent::BaseURL . self::ServiceURL;
         $this->userId = $_userId;
