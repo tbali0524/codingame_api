@@ -1,65 +1,65 @@
 # codingame_api
-Data download tool using Codingame API
+Data download tool using CodinGame's API
 
 APIs currently supported:
-* Achievement_findByCodingamerId
-* Career_getCodinGamerOptinLocation
-* Certification_findTopCertifications
-* Challenge_findAllChallenges
-* Challenge_findChallengeMinimalInfoByChallengePublicId
-* ClashOfCode_getClashRankByCodinGamerId
-* CodinGamer_findCodingamePointsStatsByHandle
-* CodinGamer_findCodinGamerPublicInformations
-* CodinGamer_findFollowerIds
-* CodinGamer_findFollowers
-* CodinGamer_findFollowing
-* CodinGamer_findFollowingIds
-* CodinGamer_findRankingPoints
-* CodinGamer_findTotalAchievementProgress
-* CodinGamer_getMyConsoleInformation
-* Codingamer_loginSiteV2
-* CodingamerPuzzleTopic_findTopicsByCodingamerId
-* Contribution_findContribution
-* Contribution_findContributionModerators
-* Contribution_getAcceptedContributions
-* Contribution_getAllPendingContributions
-* Leaderboards_findAllPuzzleLeaderboards
-* Leaderboards_getCodinGamerChallengeRanking
-* Leaderboards_getCodinGamerClashRanking
-* Leaderboards_getCodinGamerGlobalRankingByHandle
-* Leaderboards_getFilteredChallengeLeaderboard
-* Leaderboards_getFilteredPuzzleLeaderboard
-* Leaderboards_getGlobalLeaderboard
-* LastActivities_getLastActivities
-* Puzzle_countSolvedPuzzlesByProgrammingLanguage
-* Puzzle_findAllMinimalProgress
-* Puzzle_findProgressByIds
-* Puzzle_findProgressByPrettyId
-* Quest_countLootableQuests
-* Quest_findQuestMap
-* School_findById
-* Solution_findBestSolutions
-* Solution_findMySolutions
-* Topic_findTopicPageByTopicHandle
+* Achievement/FindByCodingamerId
+* Career/GetCodinGamerOptinLocation
+* Certification/FindTopCertifications
+* Challenge/FindAllChallenges
+* Challenge/FindChallengeMinimalInfoByChallengePublicId
+* ClashOfCode/GetClashRankByCodinGamerId
+* CodinGamer/FindCodingamePointsStatsByHandle
+* CodinGamer/FindCodinGamerPublicInformations
+* CodinGamer/FindFollowerIds
+* CodinGamer/FindFollowers
+* CodinGamer/FindFollowing
+* CodinGamer/FindFollowingIds
+* CodinGamer/FindRankingPoints
+* CodinGamer/FindTotalAchievementProgress
+* CodinGamer/GetMyConsoleInformation
+* Codingamer/LoginSiteV2
+* CodingamerPuzzleTopic/FindTopicsByCodingamerId
+* Contribution/FindContribution
+* Contribution/FindContributionModerators
+* Contribution/GetAcceptedContributions
+* Contribution/GetAllPendingContributions
+* Leaderboards/FindAllPuzzleLeaderboards
+* Leaderboards/GetCodinGamerChallengeRanking
+* Leaderboards/GetCodinGamerClashRanking
+* Leaderboards/GetCodinGamerGlobalRankingByHandle
+* Leaderboards/GetFilteredChallengeLeaderboard
+* Leaderboards/GetFilteredPuzzleLeaderboard
+* Leaderboards/GetGlobalLeaderboard
+* LastActivities/GetLastActivities
+* Puzzle/CountSolvedPuzzlesByProgrammingLanguage
+* Puzzle/FindAllMinimalProgress
+* Puzzle/FindProgressByIds
+* Puzzle/FindProgressByPrettyId
+* Quest/CountLootableQuests
+* Quest/FindQuestMap
+* School/FindById
+* Solution/FindBestSolutions
+* Solution/FindMySolutions
+* Topic/FindTopicPageByTopicHandle
 * ... and getting the user avatar PNG file by file id
 
 Composite functions with multiple API calls:
 * Getting all puzzles info
 * Getting all puzzle leaderboards
 * Getting all challenge leaderboards
-* Getting achievement count and number of puzzles solved per language for top players on global leaderboard 
+* Getting achievement count and number of puzzles solved per language for top players on global leaderboard
 
 Usage:
 > php cg_api.php
 
-or in Windows you can redirecting report to output.txt by invoking
+Helper scripts (Windows only):
+
+Redirect report to output.txt
 > test.bat
 
 Clear all generated files (request*.json, response*.json, result*.csv, output.txt, avatar.png, cookie.txt) with
 > clear.bat
 
-You can edit which test cases to run near the very end of the source file. 
-All tests run in ~5 minutes.
-
-Licence: GNU General Public License v3
-(If reused, I kindly ask for basic attribution.)
+You can edit which test cases to run near the very end of the source file.
+All tests run in ~5 minutes
+Code is using single thread with blocking I/O, to avoid flooding the CG site.

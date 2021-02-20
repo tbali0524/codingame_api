@@ -1,0 +1,11 @@
+/requests/
+/responses/
+/results/
+/stats/
+/private/
+/.vscode/
+*.json
+*.csv
+output.txt
+cookie.txt
+avatar.png
