@@ -1,6 +1,6 @@
 # codingame_api
 CodinGame data download & API tool\
-(c) 2021 by Bálint Tóth (TBali)\
+(c) 2021 by Balint Toth (TBali)\
 v1.1
 
 APIs currently supported:
