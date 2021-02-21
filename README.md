@@ -1,8 +1,6 @@
 # codingame_api
-CodinGame data download & API tool
-
-(c) 2021 by Bálint Tóth (TBali)
-
+CodinGame data download & API tool\
+(c) 2021 by Bálint Tóth (TBali)\
 v1.1
 
 APIs currently supported:
@@ -66,7 +64,7 @@ All tests run in ~5 minutes.
 
 Generated files:
 * `output.txt` : overall report textfile
-* `requestes/*.json` : API request body contents
+* `requests/*.json` : API request body contents
 * `responses/*.json` : API response body contents
 * `results/*.csv` : API response extracted as tabular data
 * `results/avatar.png` : avatar picture
