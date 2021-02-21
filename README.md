@@ -1,5 +1,7 @@
 # codingame_api
-Data download tool using CodinGame's API
+CodinGame data download & API tool
+(c) 2021 by Bálint Tóth (TBali)
+v1.1
 
 APIs currently supported:
 * Achievement/FindByCodingamerId
@@ -50,16 +52,27 @@ Composite functions with multiple API calls:
 * Getting achievement count and number of puzzles solved per language for top players on global leaderboard
 
 Usage:
-> php cg_api.php
-
-Helper scripts (Windows only):
-
-Redirect report to output.txt
 > test.bat
+or
+> test.sh
 
-Clear all generated files (request*.json, response*.json, result*.csv, output.txt, avatar.png, cookie.txt) with
-> clear.bat
+You can edit which test cases to run in `src/cg_api_test.php`
+Some APIs require authentication. To call these, you must set your CodinGame credentials in `src/misc.php`
+All tests run in ~5 minutes.
+(Code is using only a single thread and blocking I/O, to avoid flooding the CG site.)
 
-You can edit which test cases to run near the very end of the source file.
-All tests run in ~5 minutes
-Code is using single thread with blocking I/O, to avoid flooding the CG site.
+Generated files:
+* `output.txt`: overall report textfile
+* `requestes/*.json`: API request body contents
+* `responses/*.json`: API response body contents
+* `results/*.csv`: API response extracted as tabular data
+* `results/avatar.png`: avatar picture
+* `cookie.txt`: temporary file
+
+Helper script to delete all the generated files:
+> clear_output.bat
+or
+> clear_output.sh
+
+Requirements: `PHP v7.4` or later.
+Licensed under MIT license.

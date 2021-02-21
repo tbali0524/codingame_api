@@ -1,1 +1,1 @@
-php cg_api.php >output.txt 2>&1
+php src\cg_api_test.php >output.txt 2>&1
