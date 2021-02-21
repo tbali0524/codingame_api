@@ -1,6 +1,8 @@
 # codingame_api
 CodinGame data download & API tool
+
 (c) 2021 by Bálint Tóth (TBali)
+
 v1.1
 
 APIs currently supported:
@@ -53,6 +55,7 @@ Composite functions with multiple API calls:
 
 Usage:
 > test.bat
+
 or
 > test.sh
 
@@ -62,17 +65,19 @@ All tests run in ~5 minutes.
 (Code is using only a single thread and blocking I/O, to avoid flooding the CG site.)
 
 Generated files:
-* `output.txt`: overall report textfile
-* `requestes/*.json`: API request body contents
-* `responses/*.json`: API response body contents
-* `results/*.csv`: API response extracted as tabular data
-* `results/avatar.png`: avatar picture
-* `cookie.txt`: temporary file
+* `output.txt` : overall report textfile
+* `requestes/*.json` : API request body contents
+* `responses/*.json` : API response body contents
+* `results/*.csv` : API response extracted as tabular data
+* `results/avatar.png` : avatar picture
+* `cookie.txt` : temporary file
 
 Helper script to delete all the generated files:
 > clear_output.bat
+
 or
 > clear_output.sh
 
 Requirements: `PHP v7.4` or later.
+
 Licensed under MIT license.
