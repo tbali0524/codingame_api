@@ -57,10 +57,9 @@ Usage:
 or
 > test.sh
 
-You can edit which test cases to run in `src/cg_api_test.php`
-Some APIs require authentication. To call these, you must set your CodinGame credentials in `src/misc.php`
-All tests run in ~5 minutes.
-(Code is using only a single thread and blocking I/O, to avoid flooding the CG site.)
+You can edit which test cases to run in `src/cg_api_test.php`\
+Some APIs require authentication. To call these, you must set your CodinGame credentials in `src/misc.php`\
+All tests run in ~5 minutes. (Code is using only a single thread and blocking I/O, to avoid flooding the CG site.)
 
 Generated files:
 * `output.txt` : overall report textfile
