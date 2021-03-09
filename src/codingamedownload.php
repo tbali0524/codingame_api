@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace CG;
 
-use CG\CodinGameApi;
-
 class CodinGameDownload
 {
     public $countCalls = 0;

@@ -8,7 +8,7 @@ declare(strict_types=1);
 const MIN_PHP_VERSION = "7.4.0";
 if (version_compare(phpversion(), MIN_PHP_VERSION, "<")) {
     echo "ERROR: Minimum required PHP version is " . MIN_PHP_VERSION . "; you are on " . phpversion() . PHP_EOL;
-    exit();
+    exit(1);
 }
 
 const PRIVATE_CREDENTIALS_FILE = __DIR__ . "/misc_secret.php";

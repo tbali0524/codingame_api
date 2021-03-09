@@ -18,12 +18,12 @@ require_once "classloader.php";
 
 $g = new CG\CodinGameDownload();
 echo "codingame_api v1.1 - CodinGame data download & API tool (c) 2021 by Balint Toth (TBali)", PHP_EOL;
-$g->testAll(); // generateLanguageLeaderboardCSV() not included
-// $g->testAPI();
+// $g->testAll(); // generateLanguageLeaderboardCSV() not included
+$g->testAPI();
 // $g->testEmulated();
 // $g->testAvatar();
 // $g->generateAllPuzzlesCSV();
 // $g->generateAllPuzzlesCSV("easy");
 // $g->generateAllPuzzleLeaderboardCSV();
 // $g->generateAllChallengeLeaderboardCSV();
-$g->generateLanguageLeaderboardCSV(100);
+// $g->generateLanguageLeaderboardCSV(100);

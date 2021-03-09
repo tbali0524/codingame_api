@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace CG;
 
-use CG\MySelf;
-
 abstract class CodinGameApi
 {
     public ?string $serviceURL = null;
