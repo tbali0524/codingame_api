@@ -77,4 +77,6 @@ or
 
 Requirements: `PHP v7.4` or later.
 
+Note: master branch renamed to main.
+
 Licensed under MIT license.
