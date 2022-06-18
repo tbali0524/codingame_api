@@ -22,8 +22,10 @@ final class LeaderboardsGetFilteredPuzzleLeaderboard extends CodinGameApi
         $this->publicHandle = $_publicHandle;
         $this->puzzlePublicId = $_puzzlePublicId;
         $this->keyToGetRows = "users";
+        // phpcs:disable Generic.Files.LineLength.TooLong
         $this->columnNames =        ["rank", "leagueName", "programmingLanguage", "pseudo", "codingamer",   "codingamer",   "codingamer", "codingamer"];
         $this->columnNamesDepth2 =  [null,   null,          null,                 null,     "level",        "countryId",    "userId",     "publicHandle"];
+        // phpcs:enable
         $this->fieldFixedKey = "puzzlePublicId";
         $this->fieldFixedValue = $this->puzzlePublicId;
         $this->requestJSON = '["' . $this->puzzlePublicId . '","' . $this->publicHandle

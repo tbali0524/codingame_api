@@ -26,8 +26,10 @@ final class LeaderboardsGetGlobalLeaderboard extends CodinGameApi
         $this->pageNum = $_pageNum;
         $this->leaderboardType = $_leaderboardType;
         $this->keyToGetRows = "users";
+        // phpcs:disable Generic.Files.LineLength.TooLong
         $this->columnNames =        ["pseudo",  "rank", "score",  "xp", "codingamer", "codingamer",   "codingamer", "codingamer"];
         $this->columnNamesDepth2 =  [null,      null,   null,     null, "level",      "countryId",    "userId",     "publicHandle"];
+        // phpcs:enable
         $this->requestJSON = '[' . $this->pageNum . ',"' . $this->leaderboardType
             . '",{keyword: "", active: false, column: "", filter: ""},"' . $this->publicHandle . '",true,"global"]';
     }
